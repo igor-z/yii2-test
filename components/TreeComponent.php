@@ -3,19 +3,11 @@ namespace app\components;
 
 use app\exceptions\InvalidTreeItemPathException;
 use app\models\TreeItem;
-use app\providers\TreeProvider;
-use app\repositories\TreeRepository;
 use Yii;
 use yii\base\BaseObject;
-use yii\helpers\ArrayHelper;
 
 class TreeComponent extends BaseObject
 {
-    /** @var TreeRepository */
-    public $treeRepository;
-    /** @var TreeProvider */
-    public $treeProvider;
-
     public function save(array $rawItems)
     {
         Yii::$app->db->transaction(function () use($rawItems) {
@@ -30,13 +22,13 @@ class TreeComponent extends BaseObject
         });
 
         $left = 1;
-        $lastDepth = 1;
+        $prevDepth = 1;
         $parents = [];
 
         /** @var TreeItem|null $prevItem */
         foreach ($rawItems as $rawItem) {
             $depth = count(explode('.', $rawItem['position']));
-            if ($depth > $lastDepth) {
+            if ($depth > $prevDepth) {
                 if (!isset($prevItem)) {
                     throw new InvalidTreeItemPathException("Invalid tree item path: \"{$rawItem['position']}\"");
                 }
@@ -44,23 +36,27 @@ class TreeComponent extends BaseObject
                 $parents[] = $prevItem;
 
                 $left++;
-            } elseif ($depth < $lastDepth) {
+            } elseif ($depth < $prevDepth) {
                 if (isset($prevItem)) {
-                    $prevItem->rgt = $left + 1;
+                    $prevItem->rgt = ++$left;
                     $prevItem->save();
                 }
 
-                /** @var TreeItem $parent */
-                $parent = array_pop($parents);
+                $left++;
+                do {
+                    /** @var TreeItem $parent */
+                    $parent = array_pop($parents);
 
-                if (!$parent) {
-                    throw new InvalidTreeItemPathException("Invalid tree item path: \"{$rawItem['position']}\"");
-                }
+                    if (!$parent) {
+                        throw new InvalidTreeItemPathException("Invalid tree item path: \"{$rawItem['position']}\"");
+                    }
 
-                $parent->rgt =  $left + 2;
-                $parent->save();
+                    $parent->rgt =  $left;
+                    $parent->save();
 
-                $left += 3;
+                    $left++;
+                    $prevDepth--;
+                } while ($depth < $prevDepth);
             } elseif (isset($prevItem)) {
                 $prevItem->rgt = $left + 1;
                 $prevItem->save();
@@ -74,7 +70,7 @@ class TreeComponent extends BaseObject
             $prevItem->title = $rawItem['title'];
             $prevItem->value = $rawItem['value'];
 
-            $lastDepth = $depth;
+            $prevDepth = $depth;
         }
 
         if (isset($prevItem)) {
