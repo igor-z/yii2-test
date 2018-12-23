@@ -30,13 +30,13 @@ class TreeComponent extends BaseObject
         });
 
         $left = 1;
-        $lastLevel = 1;
+        $lastDepth = 1;
         $parents = [];
 
         /** @var TreeItem|null $prevItem */
         foreach ($rawItems as $rawItem) {
-            $level = count(explode('.', $rawItem['position']));
-            if ($level > $lastLevel) {
+            $depth = count(explode('.', $rawItem['position']));
+            if ($depth > $lastDepth) {
                 if (!isset($prevItem)) {
                     throw new InvalidTreeItemPathException("Invalid tree item path: \"{$rawItem['position']}\"");
                 }
@@ -44,7 +44,7 @@ class TreeComponent extends BaseObject
                 $parents[] = $prevItem;
 
                 $left++;
-            } elseif ($level < $lastLevel) {
+            } elseif ($depth < $lastDepth) {
                 if (isset($prevItem)) {
                     $prevItem->rgt = $left + 1;
                     $prevItem->save();
@@ -69,12 +69,12 @@ class TreeComponent extends BaseObject
             }
 
             $prevItem = new TreeItem();
-            $prevItem->level = $level;
+            $prevItem->depth = $depth;
             $prevItem->lft = $left;
             $prevItem->title = $rawItem['title'];
             $prevItem->value = $rawItem['value'];
 
-            $lastLevel = $level;
+            $lastDepth = $depth;
         }
 
         if (isset($prevItem)) {
@@ -88,7 +88,7 @@ class TreeComponent extends BaseObject
         }
 
         $root = new TreeItem();
-        $root->level = 0;
+        $root->depth = 0;
         $root->lft = 0;
         $root->rgt = ++$left;
         $root->title = 'root';

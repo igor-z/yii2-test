@@ -10,7 +10,7 @@ use yii\db\ActiveRecord;
  * @property string $value
  * @property int $lft
  * @property int $rgt
- * @property int $level
+ * @property int $depth
  * @package app\models
  */
 class TreeItem extends ActiveRecord

@@ -17,7 +17,7 @@ class m181222_133425_tree extends Migration
             'lft' => $this->integer()->notNull(),
             'rgt' => $this->integer()->notNull(),
             'title' => $this->string()->notNull(),
-            'level' => $this->integer()->notNull(),
+            'depth' => $this->integer()->notNull(),
             'value' => $this->string()->notNull(),
         ], 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB');
     }
