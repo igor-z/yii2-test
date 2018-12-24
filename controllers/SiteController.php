@@ -1,22 +1,66 @@
 <?php
-namespace app\commands;
+namespace app\controllers;
 
 use app\components\TreeComponent;
 use app\models\TreeItem;
-use yii\console\Controller;
-use yii\console\ExitCode;
+use Yii;
+use yii\base\Module;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
+use yii\web\Controller;
+use yii\web\Response;
 
-class TestController extends Controller
+class SiteController extends Controller
 {
-    /**
-     * This command echoes what you have entered as the message.
-     * @return int Exit code
-     */
-    public function actionIndex()
+    protected $treeComponent;
+
+    public function __construct(string $id, Module $module, TreeComponent $treeComponent, array $config = [])
     {
-        TreeItem::deleteAll();
-        $treeComponent = new TreeComponent();
-        $treeComponent->save([
+        parent::__construct($id, $module, $config);
+        $this->treeComponent = $treeComponent;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => [],
+                'rules' => [
+                    [
+                        'allow' => true,
+                    ],
+                ],
+            ],
+            'verbFilter' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'regenerate-tree' => ['POST'],
+                    'delete-tree' => ['POST'],
+                ],
+            ]
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+        ];
+    }
+
+    public function actionRegenerateTree()
+    {
+        $this->treeComponent->deleteAll();
+        $this->treeComponent->save([
             [
                 'position' => '1.3.2',
                 'title' => 'грунт, грунт замусоренный (техн.)',
@@ -129,6 +173,23 @@ class TestController extends Controller
             ],
         ]);
 
-        return ExitCode::OK;
+        $this->redirect('/');
+    }
+
+    public function actionDeleteTree()
+    {
+        $this->treeComponent->deleteAll();
+
+        $this->redirect('/');
+    }
+
+    /**
+     * @return string
+     */
+    public function actionIndex()
+    {
+        return $this->render('index', [
+            'tree' => $this->treeComponent->getTree(),
+        ]);
     }
 }

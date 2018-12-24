@@ -8,6 +8,11 @@ use yii\base\BaseObject;
 
 class TreeComponent extends BaseObject
 {
+    public function deleteAll()
+    {
+        TreeItem::deleteAll();
+    }
+
     public function save(array $rawItems)
     {
         Yii::$app->db->transaction(function () use($rawItems) {
@@ -85,5 +90,44 @@ class TreeComponent extends BaseObject
             $root->value = '';
             $root->save();
         });
+    }
+
+    /**
+     * @param array $items
+     * @return array | null
+     */
+    public function getTree()
+    {
+        $items = TreeItem::find()
+            ->orderBy(['lft' => \SORT_ASC])
+            ->asArray()
+            ->all();
+
+        return $this->buildTree($items);
+    }
+
+    /**
+     * @param array $items
+     * @return array | null
+     */
+    public function buildTree(array $items)
+    {
+        $tree = array(
+            'children' => array(),
+        );
+        $parents = array(&$tree);
+        foreach ($items as $item) {
+            if (isset($prevItem) && $item["depth"] > $prevItem['depth']) {
+                $prevItem['children'] = array();
+                $parents[$prevItem['depth'] + 1] = &$prevItem;
+            }
+
+            $parents[$item['depth']]['children'][] = &$item;
+
+            $prevItem = &$item;
+            unset($item);
+        }
+
+        return reset($tree['children']);
     }
 }

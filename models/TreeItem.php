@@ -19,4 +19,12 @@ class TreeItem extends ActiveRecord
     {
         return 'tree';
     }
+
+    public function rules()
+    {
+        return [
+            [['rgt', 'lft', 'id', 'depth'], 'integer'],
+            [['title', 'value'], 'string', 'max' => 255],
+        ];
+    }
 }
