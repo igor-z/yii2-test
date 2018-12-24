@@ -12,14 +12,6 @@ use yii\web\Response;
 
 class SiteController extends Controller
 {
-    protected $treeComponent;
-
-    public function __construct(string $id, Module $module, TreeComponent $treeComponent, array $config = [])
-    {
-        parent::__construct($id, $module, $config);
-        $this->treeComponent = $treeComponent;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -59,8 +51,8 @@ class SiteController extends Controller
 
     public function actionRegenerateTree()
     {
-        $this->treeComponent->deleteAll();
-        $this->treeComponent->save([
+        Yii::$app->treeComponent->deleteAll();
+        Yii::$app->treeComponent->save([
             [
                 'position' => '1.3.2',
                 'title' => 'грунт, грунт замусоренный (техн.)',
@@ -178,7 +170,7 @@ class SiteController extends Controller
 
     public function actionDeleteTree()
     {
-        $this->treeComponent->deleteAll();
+        Yii::$app->treeComponent->deleteAll();
 
         $this->redirect('/');
     }
@@ -189,7 +181,7 @@ class SiteController extends Controller
     public function actionIndex()
     {
         return $this->render('index', [
-            'tree' => $this->treeComponent->getTree(),
+            'tree' => Yii::$app->treeComponent->getTree(),
         ]);
     }
 }

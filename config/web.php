@@ -11,17 +11,13 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
-    'container' => [
-        'singletons' => [
-            'app\components\TreeComponent' => [
-                'class' => 'app\components\TreeComponent',
-            ],
-        ],
-    ],
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => '5pj3717rxUaRZwXjJYV8zJQFYObwNA3Z',
+        ],
+        'treeComponent' => [
+            'class' => 'app\components\TreeComponent',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
