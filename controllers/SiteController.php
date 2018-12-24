@@ -51,8 +51,8 @@ class SiteController extends Controller
 
     public function actionRegenerateTree()
     {
-        Yii::$app->treeComponent->deleteAll();
-        Yii::$app->treeComponent->save([
+        Yii::$app->tree->deleteAll();
+        Yii::$app->tree->save([
             [
                 'position' => '1.3.2',
                 'title' => 'грунт, грунт замусоренный (техн.)',
@@ -170,7 +170,7 @@ class SiteController extends Controller
 
     public function actionDeleteTree()
     {
-        Yii::$app->treeComponent->deleteAll();
+        Yii::$app->tree->deleteAll();
 
         $this->redirect('/');
     }
@@ -181,7 +181,7 @@ class SiteController extends Controller
     public function actionIndex()
     {
         return $this->render('index', [
-            'tree' => Yii::$app->treeComponent->getTree(),
+            'tree' => Yii::$app->tree->getTree(),
         ]);
     }
 }
